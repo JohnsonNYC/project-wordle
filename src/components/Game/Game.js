@@ -41,10 +41,13 @@ function Game() {
   };
 
   const checkCompletion = () => {
-    if (guess === answer) setIsComplete("won");
-    const newAttemptCount = attemptCount - 1;
-    setAttemptCount(newAttemptCount);
-    if (newAttemptCount == 0) setIsComplete("lose");
+    if (guess === answer) {
+      setIsComplete("won");
+    } else {
+      const newAttemptCount = attemptCount - 1;
+      setAttemptCount(newAttemptCount);
+      if (newAttemptCount == 0) setIsComplete("lose");
+    }
   };
 
   const resetState = () => {
