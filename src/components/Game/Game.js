@@ -1,8 +1,14 @@
 import React, { useState } from "react";
 import styled from "styled-components";
+// Utils
 import { sample } from "../../utils";
 import { WORDS } from "../../data";
+import { NUM_OF_GUESSES_ALLOWED } from "../../constants";
+
+// Components
 import GuessInput from "./GuessInput";
+import Board from "./Board";
+import CompleteBanner from "./CompleteBanner";
 
 // Pick a random word on every pageload.
 const answer = sample(WORDS);
@@ -10,7 +16,9 @@ const answer = sample(WORDS);
 console.info({ answer });
 
 function Game() {
-  const [attemptCount, setAttemptCount] = useState(0);
+  const [attemptCount, setAttemptCount] = useState(NUM_OF_GUESSES_ALLOWED);
+  const [isComplete, setIsComplete] = useState(""); // 'won', 'lose', ''
+  const [guessHistory, setGuessHistory] = useState([]);
   const [guess, setGuess] = useState("");
 
   const handleTextInput = (e) => {
@@ -22,9 +30,21 @@ function Game() {
   const submitGuess = (e) => {
     e.preventDefault();
     if (guess.length !== 5) return;
+    let keyId = crypto.randomUUID();
+    let guessHistoryCopy = [...guessHistory];
 
-    console.log({ guess });
+    guessHistoryCopy.push({ id: keyId, text: guess });
+    setGuessHistory(guessHistoryCopy);
+
+    checkCompletion();
     resetState();
+  };
+
+  const checkCompletion = () => {
+    if (guess === answer) setIsComplete("won");
+    const newAttemptCount = attemptCount - 1;
+    setAttemptCount(newAttemptCount);
+    if (newAttemptCount == 0) setIsComplete("lose");
   };
 
   const resetState = () => {
@@ -33,17 +53,18 @@ function Game() {
 
   return (
     <Wrapper>
+      <Board answer={answer} guessHistory={guessHistory} />
       <GuessInput
         guess={guess}
         submitGuess={submitGuess}
         handleTextInput={handleTextInput}
+        isComplete={isComplete}
       />
+      <CompleteBanner isComplete={isComplete} answer={answer} />
     </Wrapper>
   );
 }
 
 export default Game;
 
-const Wrapper = styled.div`
-  border: 1px solid red;
-`;
+const Wrapper = styled.div``;
